@@ -1,4 +1,4 @@
-#User Guide for Sorting Algorithm Visualizer
+**User Guide for Sorting Algorithm Visualizer**
 Introduction
 
 Welcome to the Sorting Algorithm Visualizer! This interactive tool helps you understand how different sorting algorithms work by visualizing their step-by-step execution. Whether you're a student learning algorithms or a developer refreshing your knowledge, this visualizer makes abstract concepts tangible.
