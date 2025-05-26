@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithm Comparison</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #fullbody {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        #mainlink {
+            float: right;
+            padding: 8px 16px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #mainlink a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #mainlink:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        #name {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #basic_btn {
+            margin-top: 20px;
+        }
+
+        .gen {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #generate {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        #generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .sizespeed {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .array_range {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .array_range span {
+            font-weight: 600;
+            color: white;
+        }
+
+        #size_slider {
+            width: 120px;
+        }
+
+        .speed-buttons {
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .speed-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .speed-btn.active {
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            color: white;
+        }
+
+        .speed-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        #sort-order-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        #ascending-btn, #descending-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        #ascending-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        #descending-btn {
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            color: white;
+        }
+
+        #ascending-btn:hover, #descending-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        #control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        #start-btn, #pause-btn, #reset-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        #start-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        #pause-btn {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        #reset-btn {
+            background: linear-gradient(45deg, #ff6b9d, #c471ed);
+            color: white;
+        }
+
+        #start-btn:hover, #pause-btn:hover, #reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        #main-content {
+            display: flex;
+            flex: 1;
+            padding: 0 20px;
+            gap: 20px;
+        }
+
+        #info-panel {
+            width: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        #algorithm-selection {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        #algorithm-selection h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .algorithm-selector {
+            margin-bottom: 20px;
+        }
+
+        .algorithm-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .algorithm-selector select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #f0f0f0;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .algorithm-selector select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        #visualization {
+            display: flex;
+            flex-direction: column;
+            width: 70%;
+            padding: 20px;
+            box-sizing: border-box;
+            gap: 30px;
+        }
+
+        .algorithm-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .algorithm-container h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .mainbody {
+            display: flex;
+            align-items: flex-end;
+            height: 300px;
+            position: relative;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 1px;
+            position: relative;
+            justify-content: flex-end;
+            flex: 1;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .bar-number {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 11px;
+        }
+
+        .algorithm-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-box span:first-child {
+            font-weight: 600;
+            display: block;
+            font-size: 12px;
+        }
+
+        .stat-box span:last-child {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            #main-content {
+                flex-direction: column;
+            }
+            #info-panel, #visualization {
+                width: 100%;
+            }
+            
+            .sizespeed {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section id="fullbody">
+        <header>
+            <div id="mainlink">
+                <a href="../../index.html">Home</a>
+            </div>
+            <h1 id="name">SORTING VISUALIZER</h1>
+            <div id="basic_btn">
+                <div class="gen">
+                    <button id="generate">🎲 Generate New Array</button>
+                </div>
+                <div class="sizespeed">
+                    <div class="array_range">
+                        <span>📏 Size:</span>
+                        <input type="range" id="size_slider" min="5" max="50" value="20">
+                        <span id="size_value">20</span>
+                    </div>
+                    <div class="array_range">
+                        <span>⚡ Speed:</span>
+                        <div class="speed-buttons">
+                            <button class="speed-btn" data-speed="0.25">0.25x</button>
+                            <button class="speed-btn" data-speed="0.5">0.5x</button>
+                            <button class="speed-btn" data-speed="0.75">0.75x</button>
+                            <button class="speed-btn active" data-speed="1">1x</button>
+                            <button class="speed-btn" data-speed="1.25">1.25x</button>
+                            <button class="speed-btn" data-speed="1.5">1.5x</button>
+                            <button class="speed-btn" data-speed="2">2x</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="sort-order-buttons">
+            <button id="ascending-btn">✅ Ascending</button>
+            <button id="descending-btn">📉 Descending</button>
+        </div>
+
+        <div id="control-buttons">
+            <button id="start-btn">▶️ Start</button>
+            <button id="pause-btn">⏸️ Pause</button>
+            <button id="reset-btn">🔄 Reset</button>
+        </div>
+
+        <div id="main-content">
+            <div id="info-panel">
+                <div id="algorithm-selection">
+                    <h3>🎯 Algorithm Selection</h3>
+                    <div class="algorithm-selector">
+                        <label for="algorithm1">Algorithm 1:</label>
+                        <select id="algorithm1">
+                            <option value="bubble">Bubble Sort</option>
+                            <option value="insertion">Insertion Sort</option>
+                            <option value="selection">Selection Sort</option>
+                            <option value="merge">Merge Sort</option>
+                            <option value="quick">Quick Sort</option>
+                            <option value="heap">Heap Sort</option>
+                        </select>
+                    </div>
+                    <div class="algorithm-selector">
+                        <label for="algorithm2">Algorithm 2:</label>
+                        <select id="algorithm2">
+                            <option value="bubble">Bubble Sort</option>
+                            <option value="insertion" selected>Insertion Sort</option>
+                            <option value="selection">Selection Sort</option>
+                            <option value="merge">Merge Sort</option>
+                            <option value="quick">Quick Sort</option>
+                            <option value="heap">Heap Sort</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="visualization">
+                <div class="algorithm-container">
+                    <h2 id="algorithm1-title">Bubble Sort</h2>
+                    <div class="mainbody" id="mainbody1"></div>
+                    <div class="algorithm-stats">
+                        <div class="stat-box">
+                            <span>Comparisons</span>
+                            <span id="comparisons1">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span>Swaps</span>
+                            <span id="swaps1">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span>Time (ms)</span>
+                            <span id="time1">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="algorithm-container">
+                    <h2 id="algorithm2-title">Insertion Sort</h2>
+                    <div class="mainbody" id="mainbody2"></div>
+                    <div class="algorithm-stats">
+                        <div class="stat-box">
+                            <span>Comparisons</span>
+                            <span id="comparisons2">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span>Swaps</span>
+                            <span id="swaps2">0</span>
+                        </div>
+                        <div class="stat-box">
+                            <span>Time (ms)</span>
+                            <span id="time2">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const generateBtn = document.getElementById('generate');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const algorithm1Select = document.getElementById('algorithm1');
+        const algorithm2Select = document.getElementById('algorithm2');
+        const visualization1 = document.getElementById('mainbody1');
+        const visualization2 = document.getElementById('mainbody2');
+        const comparisonCount1 = document.getElementById('comparisons1');
+        const swapCount1 = document.getElementById('swaps1');
+        const time1 = document.getElementById('time1');
+        const comparisonCount2 = document.getElementById('comparisons2');
+        const swapCount2 = document.getElementById('swaps2');
+        const time2 = document.getElementById('time2');
+        const arraySizeInput = document.getElementById('size_slider');
+        const sizeValue = document.getElementById('size_value');
+        const algorithm1Title = document.getElementById('algorithm1-title');
+        const algorithm2Title = document.getElementById('algorithm2-title');
+
+        // Global variables
+        let array = [];
+        let delay = 300;
+        let isSorting = false;
+        let isPaused = false;
+        let sortStartTime1, sortStartTime2;
+        let sortOrder = 'ascending';
+        let currentSpeed = 1;
+
+        // Initialize
+        arraySizeInput.value = 20;
+        sizeValue.textContent = arraySizeInput.value;
+        generateArray();
+        updateAlgorithmTitles();
+
+        // Event listeners
+        generateBtn.addEventListener('click', generateArray);
+        startBtn.addEventListener('click', startSorting);
+        pauseBtn.addEventListener('click', togglePause);
+        resetBtn.addEventListener('click', reset);
+        arraySizeInput.addEventListener('input', updateArraySize);
+        algorithm1Select.addEventListener('change', updateAlgorithmTitles);
+        algorithm2Select.addEventListener('change', updateAlgorithmTitles);
+
+        // Speed buttons
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSpeed = parseFloat(btn.dataset.speed);
+                delay = 300 / currentSpeed;
+            });
+        });
+
+        document.getElementById('ascending-btn').addEventListener('click', () => {
+            sortOrder = 'ascending';
+            document.getElementById('ascending-btn').style.opacity = '1';
+            document.getElementById('descending-btn').style.opacity = '0.7';
+        });
+
+        document.getElementById('descending-btn').addEventListener('click', () => {
+            sortOrder = 'descending';
+            document.getElementById('descending-btn').style.opacity = '1';
+            document.getElementById('ascending-btn').style.opacity = '0.7';
+        });
+
+        // Algorithm implementations
+        const algorithms = {
+            bubble: bubbleSort,
+            insertion: insertionSort,
+            merge: mergeSort,
+            quick: quickSort,
+            selection: selectionSort,
+            heap: heapSort
+        };
+
+        function updateAlgorithmTitles() {
+            const alg1Name = algorithm1Select.options[algorithm1Select.selectedIndex].text;
+            const alg2Name = algorithm2Select.options[algorithm2Select.selectedIndex].text;
+            algorithm1Title.textContent = alg1Name;
+            algorithm2Title.textContent = alg2Name;
+        }
+
+        function generateArray() {
+            if (isSorting) return;
+            
+            const size = parseInt(arraySizeInput.value);
+            array = Array.from({length: size}, () => Math.floor(Math.random() * 100) + 1);
+            renderBars();
+            resetStats();
+        }
+
+        function renderBars() {
+            visualization1.innerHTML = '';
+            visualization2.innerHTML = '';
+            
+            const maxValue = Math.max(...array);
+            const containerHeight = 250;
+            
+            array.forEach((value, index) => {
+                // For algorithm 1
+                const barContainer1 = document.createElement('div');
+                barContainer1.className = 'bar-container';
+                barContainer1.style.width = `${100 / array.length}%`;
+                
+                const barNumber1 = document.createElement('div');
+                barNumber1.className = 'bar-number';
+                barNumber1.textContent = value;
+                
+                const bar1 = document.createElement('div');
+                bar1.className = 'bar';
+                bar1.style.height = `${(value / maxValue) * containerHeight}px`;
+                bar1.dataset.value = value;
+                bar1.dataset.index = index;
+                
+                barContainer1.appendChild(barNumber1);
+                barContainer1.appendChild(bar1);
+                visualization1.appendChild(barContainer1);
+                
+                // For algorithm 2
+                const barContainer2 = barContainer1.cloneNode(true);
+                visualization2.appendChild(barContainer2);
+            });
+        }
+
+        async function startSorting() {
+            if (isSorting) return;
+            
+            isSorting = true;
+            startBtn.disabled = true;
+            generateBtn.disabled = true;
+            resetStats();
+            
+            const algorithm1 = algorithm1Select.value;
+            const algorithm2 = algorithm2Select.value;
+            
+            // Start timers
+            sortStartTime1 = performance.now();
+            sortStartTime2 = performance.now();
+            
+            // Run algorithms concurrently
+            const array1 = [...array];
+            const array2 = [...array];
+
+            try {
+                await Promise.all([
+                    algorithms[algorithm1](array1, visualization1, 1),
+                    algorithms[algorithm2](array2, visualization2, 2)
+                ]);
+            } catch (e) {
+                console.log("Sorting was interrupted");
+            } finally {
+                isSorting = false;
+                startBtn.disabled = false;
+                generateBtn.disabled = false;
+            }
+        }
+
+        function reset() {
+            if (isSorting) {
+                isSorting = false;
+                isPaused = false;
+                pauseBtn.textContent = "⏸️ Pause";
+            }
+            generateArray();
+            startBtn.disabled = false;
+            generateBtn.disabled = false;
+        }
+
+        function resetStats() {
+            comparisonCount1.textContent = '0';
+            swapCount1.textContent = '0';
+            time1.textContent = '0';
+            comparisonCount2.textContent = '0';
+            swapCount2.textContent = '0';
+            time2.textContent = '0';
+        }
+
+        function updateArraySize() {
+            sizeValue.textContent = arraySizeInput.value;
+            if (!isSorting) {
+                generateArray();
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? '▶️ Resume' : '⏸️ Pause';
+        }
+
+        // Helper functions for algorithms
+        function updateBarColors(container, indices, action) {
+            const bars = container.querySelectorAll('.bar');
+            
+            // Reset all bars to default color
+            bars.forEach(bar => {
+                bar.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            });
+            
+            if (action === 'compare') {
+                indices.forEach(i => {
+                    if (bars[i]) {
+                        bars[i].style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                    }
+                });
+            } else if (action === 'swap') {
+                indices.forEach(i => {
+                    if (bars[i]) {
+                        bars[i].style.background = 'linear-gradient(135deg, #ff6b9d 0%, #c471ed 100%)';
+                    }
+                });
+            }
+            
+            // Update statistics
+            if (container === visualization1) {
+                if (action === 'compare') comparisonCount1.textContent = parseInt(comparisonCount1.textContent) + 1;
+                if (action === 'swap') swapCount1.textContent = parseInt(swapCount1.textContent) + 1;
+                time1.textContent = Math.floor(performance.now() - sortStartTime1);
+            } else {
+                if (action === 'compare') comparisonCount2.textContent = parseInt(comparisonCount2.textContent) + 1;
+                if (action === 'swap') swapCount2.textContent = parseInt(swapCount2.textContent) + 1;
+                time2.textContent = Math.floor(performance.now() - sortStartTime2);
+            }
+        }
+
+        function updateVisualization(container, arr) {
+            const bars = container.querySelectorAll('.bar');
+            const barNumbers = container.querySelectorAll('.bar-number');
+            const maxValue = Math.max(...arr);
+            const containerHeight = 250;
+            
+            arr.forEach((value, index) => {
+                if (bars[index] && barNumbers[index]) {
+                    bars[index].style.height = `${(value / maxValue) * containerHeight}px`;
+                    bars[index].dataset.value = value;
+                    barNumbers[index].textContent = value;
+                }
+            });
+        }
+
+        function markAllAsSorted(container) {
+            const bars = container.querySelectorAll('.bar');
+            bars.forEach(bar => {
+                bar.style.background = 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)';
+            });
+        }
+
+        // Sleep function for animations
+        function sleep(ms) {
+            return new Promise(resolve => {
+                const checkPause = () => {
+                    if (!isPaused && isSorting) {
+                        setTimeout(resolve, ms);
+                    } else if (!isSorting) {
+                        resolve();
+                    } else {
+                        setTimeout(checkPause, 50);
+                    }
+                };
+                checkPause();
+            });
+        }
+
+        // Sorting Algorithms
+
+        // Bubble sort implementation
+        async function bubbleSort(arr, container, algorithmNumber) {
+            const n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (!isSorting) return;
+                    
+                    updateBarColors(container, [j, j + 1], 'compare');
+                    await sleep(delay);
+
+                    const shouldSwap = sortOrder === 'ascending' ? arr[j] > arr[j + 1] : arr[j] < arr[j + 1];
+                    if (shouldSwap) {
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        updateVisualization(container, arr);
+                        updateBarColors(container, [j, j + 1], 'swap');
+                        await sleep(delay);
+                    }
+                }
+            }
+            markAllAsSorted(container);
+        }
+
+        // Insertion sort implementation
+        async function insertionSort(arr, container, algorithmNumber) {
+            const n = arr.length;
+            for (let i = 1; i < n; i++) {
+                if (!isSorting) return;
+                
+                let key = arr[i];
+                let j = i - 1;
+
+                updateBarColors(container, [i], 'compare');
+                await sleep(delay);
+
+                while (j >= 0 && ((sortOrder === 'ascending' && arr[j] > key) || (sortOrder === 'descending' && arr[j] < key))) {
+                    if (!isSorting) return;
+                    
+                    arr[j + 1] = arr[j];
+                    updateVisualization(container, arr);
+                    updateBarColors(container, [j, j + 1], 'swap');
+                    await sleep(delay);
+                    j--;
+                }
+                arr[j + 1] = key;
+                updateVisualization(container, arr);
+            }
+            markAllAsSorted(container);
+        }
+
+        // Selection sort implementation
+        async function selectionSort(arr, container, algorithmNumber) {
+            const n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                if (!isSorting) return;
+                
+                let extremeIdx = i;
+                for (let j = i + 1; j < n; j++) {
+                    if (!isSorting) return;
+                    
+                    updateBarColors(container, [extremeIdx, j], 'compare');
+                    await sleep(delay);
+
+                    const shouldUpdate = sortOrder === 'ascending' ? arr[j] < arr[extremeIdx] : arr[j] > arr[extremeIdx];
+                    if (shouldUpdate) {
+                        extremeIdx = j;
+                    }
+                }
+
+                if (extremeIdx !== i) {
+                    [arr[i], arr[extremeIdx]] = [arr[extremeIdx], arr[i]];
+                    updateVisualization(container, arr);
+                    updateBarColors(container, [i, extremeIdx], 'swap');
+                    await sleep(delay);
+                }
+            }
+            markAllAsSorted(container);
+        }
+
+        // Merge sort implementation
+        async function mergeSort(arr, container, algorithmNumber) {
+            async function merge(arr, left, mid, right) {
+                const leftArr = arr.slice(left, mid + 1);
+                const rightArr = arr.slice(mid + 1, right + 1);
+                
+                let i = 0, j = 0, k = left;
+                
+                while (i < leftArr.length && j < rightArr.length) {
+                    if (!isSorting) return;
+                    
+                    updateBarColors(container, [k], 'compare');
+                    await sleep(delay);
+
+                    const shouldTakeLeft = sortOrder === 'ascending' ? leftArr[i] <= rightArr[j] : leftArr[i] >= rightArr[j];
+                    if (shouldTakeLeft) {
+                        arr[k] = leftArr[i];
+                        i++;
+                    } else {
+                        arr[k] = rightArr[j];
+                        j++;
+                    }
+                    
+                    updateVisualization(container, arr);
+                    updateBarColors(container, [k], 'swap');
+                    await sleep(delay);
+                    k++;
+                }
+
+                while (i < leftArr.length) {
+                    if (!isSorting) return;
+                    arr[k] = leftArr[i];
+                    updateVisualization(container, arr);
+                    i++;
+                    k++;
+                }
+
+                while (j < rightArr.length) {
+                    if (!isSorting) return;
+                    arr[k] = rightArr[j];
+                    updateVisualization(container, arr);
+                    j++;
+                    k++;
+                }
+            }
+
+            async function mergeSortHelper(arr, left, right) {
+                if (left >= right || !isSorting) return;
+                
+                const mid = Math.floor((left + right) / 2);
+                await mergeSortHelper(arr, left, mid);
+                await mergeSortHelper(arr, mid + 1, right);
+                await merge(arr, left, mid, right);
+            }
+
+            await mergeSortHelper(arr, 0, arr.length - 1);
+            markAllAsSorted(container);
+        }
+
+        // Quick sort implementation
+        async function quickSort(arr, container, algorithmNumber) {
+            async function partition(arr, low, high) {
+                const pivot = arr[high];
+                let i = low - 1;
+
+                updateBarColors(container, [high], 'compare');
+                await sleep(delay);
+
+                for (let j = low; j < high; j++) {
+                    if (!isSorting) return -1;
+                    
+                    updateBarColors(container, [j, high], 'compare');
+                    await sleep(delay);
+
+                    const shouldSwap = sortOrder === 'ascending' ? arr[j] < pivot : arr[j] > pivot;
+                    if (shouldSwap) {
+                        i++;
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                        updateVisualization(container, arr);
+                        updateBarColors(container, [i, j], 'swap');
+                        await sleep(delay);
+                    }
+                }
+
+                [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+                updateVisualization(container, arr);
+                updateBarColors(container, [i + 1, high], 'swap');
+                await sleep(delay);
+
+                return i + 1;
+            }
+
+            async function quickSortHelper(arr, low, high) {
+                if (low < high && isSorting) {
+                    const pi = await partition(arr, low, high);
+                    if (pi === -1) return; // Sorting was stopped
+                    
+                    await quickSortHelper(arr, low, pi - 1);
+                    await quickSortHelper(arr, pi + 1, high);
+                }
+            }
+
+            await quickSortHelper(arr, 0, arr.length - 1);
+            markAllAsSorted(container);
+        }
+
+        // Heap sort implementation
+        async function heapSort(arr, container, algorithmNumber) {
+            async function heapify(arr, n, i) {
+                let largest = i;
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+
+                if (!isSorting) return;
+
+                if (left < n) {
+                    updateBarColors(container, [left, largest], 'compare');
+                    await sleep(delay);
+                    
+                    const leftShouldBeRoot = sortOrder === 'ascending' ? arr[left] > arr[largest] : arr[left] < arr[largest];
+                    if (leftShouldBeRoot) {
+                        largest = left;
+                    }
+                }
+
+                if (right < n) {
+                    updateBarColors(container, [right, largest], 'compare');
+                    await sleep(delay);
+                    
+                    const rightShouldBeRoot = sortOrder === 'ascending' ? arr[right] > arr[largest] : arr[right] < arr[largest];
+                    if (rightShouldBeRoot) {
+                        largest = right;
+                    }
+                }
+
+                if (largest !== i) {
+                    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+                    updateVisualization(container, arr);
+                    updateBarColors(container, [i, largest], 'swap');
+                    await sleep(delay);
+                    
+                    await heapify(arr, n, largest);
+                }
+            }
+
+            const n = arr.length;
+
+            // Build heap (rearrange array)
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                if (!isSorting) return;
+                await heapify(arr, n, i);
+            }
+
+            // One by one extract an element from heap
+            for (let i = n - 1; i > 0; i--) {
+                if (!isSorting) return;
+                
+                // Move current root to end
+                [arr[0], arr[i]] = [arr[i], arr[0]];
+                updateVisualization(container, arr);
+                updateBarColors(container, [0, i], 'swap');
+                await sleep(delay);
+
+                // Call heapify on the reduced heap
+                await heapify(arr, i, 0);
+            }
+            
+            markAllAsSorted(container);
+        }
+
+        // Initialize ascending button as active
+        document.getElementById('ascending-btn').style.opacity = '1';
+        document.getElementById('descending-btn').style.opacity = '0.7';
+    </script>
+</body>
+</html>

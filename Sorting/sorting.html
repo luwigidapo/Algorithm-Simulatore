@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="prism.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Sorting Visualizer</title>
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-hover: #5a6fd8;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4ecdc4;
+            --warning-color: #ffecd2;
+            --danger-color: #ff6b6b;
+            --dark-bg: #1e293b;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        #fullbody {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="11" height="11" fill="url(%23a)" rx="2" ry="2"/></svg>') repeat;
+            opacity: 0.1;
+        }
+
+        #mainlink {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
+
+        #mainlink a {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+        }
+
+        #mainlink a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #name {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+            position: relative;
+            z-index: 5;
+            padding: 0 1rem;
+        }
+
+        .big {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+        }
+
+        /* Control Panel Styles */
+        #basic_btn {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .gen {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .sizespeed {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Button Styles */
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-danger {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        #generate, #custom-array-btn, #upload-array-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        #generate:hover, #custom-array-btn:hover, #upload-array-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        #maximize-btn {
+            background: var(--gradient-success);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Input Styles */
+        .array_range, .array_speed {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            min-width: 180px;
+            flex-shrink: 0;
+        }
+
+        .array_range span, .array_speed span {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        #size_slider {
+            flex: 1;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        #size_slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+        }
+
+        #custom-array-container, #file-upload-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            min-width: 250px;
+            flex-shrink: 0;
+        }
+
+        #custom-array-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.4rem 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+            transition: border-color 0.3s ease;
+        }
+
+        #custom-array-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Speed Controls */
+        .array_speed {
+            flex-wrap: wrap;
+            min-width: 300px;
+        }
+
+        .speed-option {
+            padding: 0.4rem 0.6rem;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .speed-option:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .speed-option.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Sort Order Controls */
+        #sort-order-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1rem 0;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        #ascending-btn, #descending-btn {
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        #ascending-btn {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        #descending-btn {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        #ascending-btn:hover, #descending-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Control Buttons */
+        #control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 0.8rem 0;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        #pause-btn, #reset-btn {
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        #pause-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: var(--text-primary);
+        }
+
+        #reset-btn {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        /* Counters */
+        #counters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+            padding: 0 1rem;
+        }
+
+        .counter-box {
+            background: var(--card-bg);
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .counter-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .counter-box span:first-child {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .counter-box span:last-child {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1em;
+        }
+
+        /* Main Content Layout */
+        #main-content {
+            display: flex;
+            flex: 1;
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        #info-panel {
+            width: 320px;
+            min-width: 320px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 0.8rem;
+            padding: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            margin: 0 0 0.8rem 0;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #prev-language, #next-language {
+            padding: 0.2rem 0.4rem;
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+
+        /* Visualization Area */
+        #visualization {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: 0.8rem;
+            padding: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            min-width: 0;
+            overflow: hidden;
+            max-width: calc(100% - 340px);
+        }
+
+        #mainbody {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            min-height: 350px;
+            position: relative;
+            background: linear-gradient(to top, rgba(102, 126, 234, 0.05) 0%, transparent 100%);
+            border-radius: 0.5rem;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            gap: 2px;
+        }
+
+        /* Bar Styles */
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 1px;
+            position: relative;
+            justify-content: flex-end;
+            flex: 1;
+            min-width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .bar {
+            width: 100%;
+            min-width: 4px;
+            background: var(--gradient-primary);
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 4px 4px 0 0;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .bar-number {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 0.7rem;
+            background: var(--card-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.375rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            min-width: 18px;
+        }
+
+        .comparison-arrow {
+            color: var(--danger-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+            position: absolute;
+            bottom: 0;
+            z-index: 10;
+            text-shadow: 0 0 3px rgba(0,0,0,0.3);
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+        }
+
+        /* Algorithm Buttons */
+        #buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .BubbleSort, .SelectionSort, .InsertionSort, 
+        .MergeSort, .QuickSort, .HeapSort {
+            padding: 0.8rem 1rem;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+
+        .BubbleSort::before, .SelectionSort::before, .InsertionSort::before,
+        .MergeSort::before, .QuickSort::before, .HeapSort::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .BubbleSort:hover::before, .SelectionSort:hover::before, .InsertionSort:hover::before,
+        .MergeSort:hover::before, .QuickSort:hover::before, .HeapSort:hover::before {
+            left: 100%;
+        }
+
+        .BubbleSort:hover, .SelectionSort:hover, .InsertionSort:hover,
+        .MergeSort:hover, .QuickSort:hover, .HeapSort:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Code Display */
+        pre {
+            margin: 0;
+            overflow-x: auto;
+            background: var(--light-bg);
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+        }
+
+        .language-java {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        /* Insertion Sort Arrows */
+        .insertion-arrow {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 100;
+            text-shadow: 0 0 3px rgba(0,0,0,0.8);
+            animation: insertionPulse 0.5s infinite alternate;
+        }
+
+        @keyframes insertionPulse {
+            from { opacity: 0.7; transform: translateX(-50%) scale(1); }
+            to { opacity: 1; transform: translateX(-50%) scale(1.2); }
+        }
+
+        .insertion-arrow[data-type="compare"] {
+            color: #ff0000;
+        }
+
+        .insertion-arrow[data-type="shift"] {
+            color: #ff9900;
+        }
+
+        .insertion-arrow[data-type="insert"] {
+            color: #00ff00;
+        }
+
+        /* Maximized View */
+        .maximized #info-panel {
+            display: none;
+        }
+
+        .maximized #visualization {
+            width: 100%;
+            max-width: 95vw;
+        }
+
+        .maximized #main-content {
+            padding: 0.8rem;
+            max-width: 95vw;
+        }
+
+        .maximized #mainbody {
+            min-height: 400px;
+            padding: 0.5rem;
+        }
+
+        .maximized .bar-container {
+            min-width: 6px;
+            margin: 0 0.5px;
+            flex: 1 1 auto;
+            max-width: calc(15px + 1vw);
+        }
+
+        .maximized .bar-number {
+            font-size: 0.6rem;
+            padding: 0.1rem 0.2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            #main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            #info-panel {
+                width: 100%;
+                max-width: 100%;
+                min-width: auto;
+                order: 2;
+            }
+            
+            #visualization {
+                order: 1;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .gen {
+                gap: 0.6rem;
+            }
+            
+            .sizespeed {
+                gap: 0.6rem;
+            }
+            
+            .array_range, .array_speed, #custom-array-container, #file-upload-container {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            #buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #name {
+                font-size: 1.8rem;
+            }
+            
+            .big {
+                font-size: 1.2rem;
+            }
+            
+            #buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .counter-box {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            #mainbody {
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #name {
+                font-size: 1.5rem;
+            }
+            
+            .gen, .sizespeed {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            #buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            #mainbody {
+                min-height: 250px;
+            }
+            
+            .maximized #mainbody {
+                min-height: 350px;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
+        .loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Accessibility Improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        input:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body> 
+    <section id="fullbody">
+        <header>
+            <div id="mainlink">
+                <a href="index.html">← Home</a>
+            </div>
+            <h1 id="name"><span class="big">S</span>ORTING <span class="big">VISUALIZER</span></h1>
+            <div id="basic_btn">
+                <div class="gen">
+                    <button id="stack-btn" class="btn-secondary" onclick="window.location.href='stack.html'">📚 Stack</button>
+                    <button id="queues-btn" class="btn-secondary" onclick="window.location.href='queue.html'">🔄 Queues</button>
+                    <button id="compare-btn" class="btn-secondary" onclick="window.location.href='compare/index.html'">⚖️ Compare</button>
+                    <div class="dropdown">
+                        <button class="select btn-secondary">
+                            <div class="selected">Click any Button</div>
+                        </button>
+                    </div>
+                    <button id="generate" class="btn-primary">🎲 Generate New Array</button>
+                </div>
+                <div class="sizespeed">
+                    <div class="array_range">
+                        <span>📏 Size:</span>
+                        <input type="range" id="size_slider" min="4" max="60" value="15">
+                        <span id="size_value">15</span>
+                    </div>
+                    <div id="custom-array-container">
+                        <input type="text" id="custom-array-input" placeholder="Enter numbers (max 60)">
+                        <button id="custom-array-btn">✏️ Custom Array</button>
+                    </div>
+                    <div id="file-upload-container">
+                        <input type="file" id="array-file-input" accept=".txt,.csv" style="display: none;">
+                        <button id="upload-array-btn">📁 Upload Array File</button>
+                    </div>
+                    <div class="array_speed">
+                        <span>⚡ Speed:</span>
+                        <button class="speed-option" data-speed="1024">0.25x</button>
+                        <button class="speed-option" data-speed="512">0.5x</button>
+                        <button class="speed-option" data-speed="256">0.75x</button>
+                        <button class="speed-option active" data-speed="128">1x</button>
+                        <button class="speed-option" data-speed="64">1.25x</button>
+                        <button class="speed-option" data-speed="32">1.5x</button>
+                        <button class="speed-option" data-speed="16">2x</button>
+                    </div>
+                    <button id="maximize-btn">🔍 Maximize</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="sort-order-buttons">
+            <button id="ascending-btn">📈 Ascending</button>
+            <button id="descending-btn">📉 Descending</button>
+        </div>
+
+        <div id="control-buttons">
+            <button id="pause-btn">⏸️ Pause</button>
+            <button id="reset-btn">🔄 Reset</button>
+        </div>
+
+        <div id="counters">
+            <div class="counter-box">
+                <span>🔍 Comparisons:</span>
+                <span id="comparison-count">0</span>
+                <span id="comparison-display"></span>
+            </div>
+            <div class="counter-box">
+                <span>🔄 Swaps:</span>
+                <span id="swap-count">0</span>
+            </div>
+            <div class="counter-box">
+                <span>⏱️ Time:</span>
+                <span id="time-count">0s</span>
+            </div>
+        </div>
+
+        <div id="main-content">
+            <div id="info-panel">
+                <div id="uses-panel" class="panel">
+                    <h3 class="panel-title">🎯 Most Common Uses</h3>
+                    <div id="algorithm-uses">Select a sorting algorithm to view its common uses</div>
+                </div>
+                <div id="definition-panel" class="panel">
+                    <h3 class="panel-title">📖 Algorithm Definition</h3>
+                    <div id="algorithm-definition">
+                        Select a sorting algorithm to view its definition
+                    </div>
+                </div>
+                <div id="code-panel" class="panel">
+                    <h3 class="panel-title">
+                        <span id="code-language">💻 Code (Java)</span>
+                        <div>
+                            <button id="prev-language">←</button>
+                            <button id="next-language">→</button>
+                        </div>
+                    </h3>
+                    <pre id="code_java"><code class="language-java">// Select a sorting algorithm to view its code</code></pre>
+                </div>
+                <div id="complexity-panel" class="panel">
+                    <h3 class="panel-title">📊 Complexity Analysis</h3>
+                    <pre id="time"><code class="language-java">// Select a sorting algorithm to view its complexity</code></pre>
+                </div>
+            </div>
+            <div id="visualization">
+                <div id="mainbody"></div>
+                <div id="buttons">
+                    <button class="BubbleSort">🫧 Bubble Sort</button>
+                    <button class="SelectionSort">🎯 Selection Sort</button>
+                    <button class="InsertionSort">📝 Insertion Sort</button>
+                    <button class="MergeSort">🔀 Merge Sort</button>
+                    <button class="QuickSort">⚡ Quick Sort</button>
+                    <button class="HeapSort">🏔️ Heap Sort</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="sorting.js"></script>
+    <script src="prism.js"></script>
+    <script src="bubble.js"></script>
+    <script src="selection.js"></script>
+    <script src="insertion.js"></script>
+    <script src="merge.js"></script>
+    <script src="quick.js"></script>
+    <script src="heap.js"></script>
+</body>
+</html>

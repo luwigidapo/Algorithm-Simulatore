@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Algorithm Visualizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .nav-menu li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-menu li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        /* Main Visualizer Page */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .data-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #43e97b, #38f9d7);
+        }
+
+        .play-all-btn {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+            font-size: 1.1rem;
+            padding: 12px 24px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .algorithms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .algorithm-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .algorithm-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .algorithm-title {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .bars-container {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #4facfe, #00f2fe);
+            margin: 0 1px;
+            border-radius: 2px 2px 0 0;
+            min-height: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .bar.comparing {
+            background: linear-gradient(to top, #ff6b9d, #c44569) !important;
+            transform: scale(1.1);
+        }
+
+        .bar.swapping {
+            background: linear-gradient(to top, #fa709a, #fee140) !important;
+            transform: scale(1.15);
+        }
+
+        .bar.sorted {
+            background: linear-gradient(to top, #43e97b, #38f9d7) !important;
+        }
+
+        .play-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin-top: 10px;
+        }
+
+        .play-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+            
+            .algorithms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="nav-header">
+        <a href="#" class="logo">Sorting Visualizer</a>
+        <ul class="nav-menu" id="nav-menu">
+            <li><a href="intro.html">Home</a></li>
+            <li><a href="Sorting/sorting.html">Sorting Visualizer</a></li>
+            <li><a href="Sorting/compare/index.html">Algorithm Comparison</a></li>
+            <li><a href="Sorting/queue.html">Queues Visualization</a></li>
+            <li><a href="Sorting/stack.html">Stack Visualization</a></li>
+        </ul>
+        <button class="menu-toggle" id="menu-toggle">☰</button>
+    </nav>
+
+    <div class="header">
+        <h1>Sorting Algorithm Visualizer</h1>
+        <p>Compare different sorting algorithms in action</p>
+    </div>
+
+    <div class="controls">
+        <button class="data-btn" onclick="generateArray('random')">🎲 Random</button>
+        <button class="data-btn" onclick="generateArray('reversed')">⬇️ Reversed</button>
+        <button class="data-btn" onclick="generateArray('nearly')">📊 Nearly Sorted</button>
+        <button class="data-btn" onclick="generateArray('few-unique')">🔢 Few Unique</button>
+        <button class="control-btn" id="pause-btn" onclick="togglePause()">⏸️ Pause</button>
+        <button class="control-btn" onclick="resetAll()">🔄 Reset</button>
+        <button class="play-all-btn" onclick="playAll()">▶️ Play All</button>
+    </div>
+
+    <div class="algorithms-grid">
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Bubble Sort</h3>
+            <div class="bars-container" id="bubble-bars"></div>
+            <button class="play-btn" onclick="startSort('bubble')">Play Bubble Sort</button>
+        </div>
+
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Selection Sort</h3>
+            <div class="bars-container" id="selection-bars"></div>
+            <button class="play-btn" onclick="startSort('selection')">Play Selection Sort</button>
+        </div>
+
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Insertion Sort</h3>
+            <div class="bars-container" id="insertion-bars"></div>
+            <button class="play-btn" onclick="startSort('insertion')">Play Insertion Sort</button>
+        </div>
+
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Merge Sort</h3>
+            <div class="bars-container" id="merge-bars"></div>
+            <button class="play-btn" onclick="startSort('merge')">Play Merge Sort</button>
+        </div>
+
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Quick Sort</h3>
+            <div class="bars-container" id="quick-bars"></div>
+            <button class="play-btn" onclick="startSort('quick')">Play Quick Sort</button>
+        </div>
+
+        <div class="algorithm-card">
+            <h3 class="algorithm-title">Heap Sort</h3>
+            <div class="bars-container" id="heap-bars"></div>
+            <button class="play-btn" onclick="startSort('heap')">Play Heap Sort</button>
+        </div>
+    </div>
+
+    <script>
+        const arraySize = 20;
+        const speed = 100;
+        let arrays = {};
+        let bars = {};
+        let isRunning = false;
+        let isPaused = false;
+
+        const algorithms = ['bubble', 'selection', 'insertion', 'merge', 'quick', 'heap'];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initialize();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Menu toggle
+            document.getElementById('menu-toggle').addEventListener('click', function() {
+                const navMenu = document.getElementById('nav-menu');
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        function initialize() {
+            algorithms.forEach(algo => {
+                arrays[algo] = [];
+                bars[algo] = [];
+            });
+            generateArray('random');
+        }
+
+        function generateArray(type) {
+            let newArray = [];
+            
+            switch(type) {
+                case 'random':
+                    for (let i = 0; i < arraySize; i++) {
+                        newArray.push(Math.floor(Math.random() * 120) + 10);
+                    }
+                    break;
+                case 'reversed':
+                    for (let i = 0; i < arraySize; i++) {
+                        newArray.push(130 - (i * 5));
+                    }
+                    break;
+                case 'nearly':
+                    for (let i = 0; i < arraySize; i++) {
+                        newArray.push(i * 6 + 10);
+                    }
+                    // Shuffle a few elements
+                    for (let i = 0; i < 3; i++) {
+                        const idx1 = Math.floor(Math.random() * arraySize);
+                        const idx2 = Math.floor(Math.random() * arraySize);
+                        [newArray[idx1], newArray[idx2]] = [newArray[idx2], newArray[idx1]];
+                    }
+                    break;
+                case 'few-unique':
+                    const uniqueValues = [20, 50, 80, 110];
+                    for (let i = 0; i < arraySize; i++) {
+                        newArray.push(uniqueValues[Math.floor(Math.random() * uniqueValues.length)]);
+                    }
+                    break;
+            }
+
+            algorithms.forEach(algo => {
+                arrays[algo] = [...newArray];
+                renderBars(algo);
+            });
+        }
+
+        function renderBars(algo) {
+            const container = document.getElementById(`${algo}-bars`);
+            container.innerHTML = '';
+            bars[algo] = [];
+
+            arrays[algo].forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${(value / 140) * 100}%`;
+                container.appendChild(bar);
+                bars[algo].push(bar);
+            });
+        }
+
+        function resetAll() {
+            algorithms.forEach(algo => {
+                bars[algo].forEach(bar => {
+                    bar.classList.remove('comparing', 'swapping', 'sorted');
+                });
+            });
+            generateArray('random');
+            isRunning = false;
+            isPaused = false;
+            document.getElementById('pause-btn').textContent = '⏸️ Pause';
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pause-btn').textContent = isPaused ? '▶️ Resume' : '⏸️ Pause';
+        }
+
+        async function playAll() {
+            if (isRunning) return;
+            
+            const promises = algorithms.map(algo => startSort(algo, false));
+            await Promise.all(promises);
+        }
+
+        async function startSort(algo, standalone = true) {
+            if (isRunning && standalone) return;
+            
+            if (standalone) isRunning = true;
+
+            switch(algo) {
+                case 'bubble': await bubbleSort(algo); break;
+                case 'selection': await selectionSort(algo); break;
+                case 'insertion': await insertionSort(algo); break;
+                case 'merge': await mergeSort(algo); break;
+                case 'quick': await quickSort(algo); break;
+                case 'heap': await heapSort(algo); break;
+            }
+
+            bars[algo].forEach(bar => bar.classList.add('sorted'));
+            
+            if (standalone) isRunning = false;
+        }
+
+        async function swap(algo, i, j) {
+            if (isPaused) return;
+            
+            [arrays[algo][i], arrays[algo][j]] = [arrays[algo][j], arrays[algo][i]];
+            
+            bars[algo][i].classList.add('swapping');
+            bars[algo][j].classList.add('swapping');
+            
+            bars[algo][i].style.height = `${(arrays[algo][i] / 140) * 100}%`;
+            bars[algo][j].style.height = `${(arrays[algo][j] / 140) * 100}%`;
+            
+            await new Promise(resolve => setTimeout(resolve, speed));
+            
+            bars[algo][i].classList.remove('swapping');
+            bars[algo][j].classList.remove('swapping');
+        }
+
+        async function compare(algo, i, j) {
+            if (isPaused) return;
+            
+            bars[algo][i].classList.add('comparing');
+            bars[algo][j].classList.add('comparing');
+            
+            await new Promise(resolve => setTimeout(resolve, speed / 2));
+            
+            bars[algo][i].classList.remove('comparing');
+            bars[algo][j].classList.remove('comparing');
+        }
+
+        async function bubbleSort(algo) {
+            const arr = arrays[algo];
+            for (let i = 0; i < arr.length - 1; i++) {
+                for (let j = 0; j < arr.length - i - 1; j++) {
+                    await compare(algo, j, j + 1);
+                    if (arr[j] > arr[j + 1]) {
+                        await swap(algo, j, j + 1);
+                    }
+                }
+            }
+        }
+
+        async function selectionSort(algo) {
+            const arr = arrays[algo];
+            for (let i = 0; i < arr.length - 1; i++) {
+                let minIdx = i;
+                for (let j = i + 1; j < arr.length; j++) {
+                    await compare(algo, j, minIdx);
+                    if (arr[j] < arr[minIdx]) {
+                        minIdx = j;
+                    }
+                }
+                if (minIdx !== i) {
+                    await swap(algo, i, minIdx);
+                }
+            }
+        }
+
+        async function insertionSort(algo) {
+            const arr = arrays[algo];
+            for (let i = 1; i < arr.length; i++) {
+                let j = i;
+                while (j > 0) {
+                    await compare(algo, j, j - 1);
+                    if (arr[j] < arr[j - 1]) {
+                        await swap(algo, j, j - 1);
+                        j--;
+                    } else break;
+                }
+            }
+        }
+
+        async function mergeSort(algo) {
+            async function merge(l, m, r) {
+                const n1 = m - l + 1;
+                const n2 = r - m;
+                const L = arrays[algo].slice(l, m + 1);
+                const R = arrays[algo].slice(m + 1, r + 1);
+
+                let i = 0, j = 0, k = l;
+
+                while (i < n1 && j < n2) {
+                    bars[algo][k].classList.add('comparing');
+                    
+                    if (L[i] <= R[j]) {
+                        arrays[algo][k] = L[i++];
+                    } else {
+                        arrays[algo][k] = R[j++];
+                    }
+                    
+                    bars[algo][k].style.height = `${(arrays[algo][k] / 140) * 100}%`;
+                    await new Promise(resolve => setTimeout(resolve, speed));
+                    bars[algo][k].classList.remove('comparing');
+                    k++;
+                }
+
+                while (i < n1) {
+                    arrays[algo][k] = L[i++];
+                    bars[algo][k].style.height = `${(arrays[algo][k] / 140) * 100}%`;
+                    k++;
+                }
+
+                while (j < n2) {
+                    arrays[algo][k] = R[j++];
+                    bars[algo][k].style.height = `${(arrays[algo][k] / 140) * 100}%`;
+                    k++;
+                }
+            }
+
+            async function sort(l, r) {
+                if (l >= r) return;
+                const m = l + Math.floor((r - l) / 2);
+                await sort(l, m);
+                await sort(m + 1, r);
+                await merge(l, m, r);
+            }
+
+            await sort(0, arrays[algo].length - 1);
+        }
+
+        async function quickSort(algo) {
+            async function partition(low, high) {
+                const pivot = arrays[algo][high];
+                let i = low - 1;
+
+                for (let j = low; j < high; j++) {
+                    await compare(algo, j, high);
+                    if (arrays[algo][j] < pivot) {
+                        i++;
+                        await swap(algo, i, j);
+                    }
+                }
+                await swap(algo, i + 1, high);
+                return i + 1;
+            }
+
+            async function sort(low, high) {
+                if (low < high) {
+                    const pi = await partition(low, high);
+                    await sort(low, pi - 1);
+                    await sort(pi + 1, high);
+                }
+            }
+
+            await sort(0, arrays[algo].length - 1);
+        }
+
+        async function heapSort(algo) {
+            async function heapify(n, i) {
+                let largest = i;
+                let left = 2 * i + 1;
+                let right = 2 * i + 2;
+
+                if (left < n) {
+                    await compare(algo, left, largest);
+                    if (arrays[algo][left] > arrays[algo][largest]) {
+                        largest = left;
+                    }
+                }
+
+                if (right < n) {
+                    await compare(algo, right, largest);
+                    if (arrays[algo][right] > arrays[algo][largest]) {
+                        largest = right;
+                    }
+                }
+
+                if (largest !== i) {
+                    await swap(algo, i, largest);
+                    await heapify(n, largest);
+                }
+            }
+
+            const n = arrays[algo].length;
+
+            // Build max heap
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                await heapify(n, i);
+            }
+
+            // Extract elements from heap
+            for (let i = n - 1; i > 0; i--) {
+                await swap(algo, 0, i);
+                await heapify(i, 0);
+            }
+        }
+    </script>
+</body>
+</html>

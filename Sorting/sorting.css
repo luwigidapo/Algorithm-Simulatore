@@ -1,0 +1,138 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+#fullbody {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+#name {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+#name a {
+    color: white;
+    text-decoration: none;
+}
+
+.big {
+    font-size: 1.5em;
+}
+
+#basic_btn {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.gen, .sizespeed {
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3498db;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+#working_area {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #000000;
+}
+
+#mainbody {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 50vh; /* Reduced from 70vh */
+    padding: 20px 0;
+    gap: 2px;
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #008000;
+    margin: 0 3px;
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    transition: height 0.3s ease;
+    border-radius: 4px;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+
+#buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+#pause, #stop {
+    background-color: #ff6b6b;
+}
+
+#pause:hover, #stop:hover {
+    background-color: #ff5252;
+}
+
+footer {
+    background-color: #34495e;
+    color: white;
+    padding: 20px;
+    margin-top: auto;
+}
+
+#description {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.code {
+    background-color: #2c3e50;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.selectedPane {
+    margin-bottom: 10px;
+    font-weight: bold;
+    
+}
