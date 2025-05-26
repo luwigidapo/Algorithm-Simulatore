@@ -166,4 +166,4 @@ Troubleshooting
 
     Ensure you've generated an array before selecting an algorithm
 
-    For custom arrays, verify your input follows the required for
+    For custom arrays, verify your input follows the required format
