@@ -346,7 +346,8 @@ function resetSorting() {
 
 document.getElementById('custom-array-btn').addEventListener('click', function() {
     const input = document.getElementById('custom-array-input').value;
-    const numbers = input.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+    // Split by commas OR whitespace, then trim and parse
+    const numbers = input.split(/[,\s]+/).map(num => parseInt(num.trim())).filter(num => !isNaN(num));
 
     if (numbers.length > 60) {
         alert('Maximum array size is 60. Only the first 60 numbers will be used.');
@@ -356,7 +357,7 @@ document.getElementById('custom-array-btn').addEventListener('click', function()
     if (numbers.length > 0) {
         createNewArray(numbers.length, numbers);
     } else {
-        alert('Please enter valid numbers separated by commas.');
+        alert('Please enter valid numbers separated by commas or spaces.');
     }
 });
 
@@ -372,7 +373,7 @@ document.getElementById('array-file-input').addEventListener('change', function(
     reader.onload = function(e) {
         try {
             const content = e.target.result;
-            const numbers = content.split(/[\s,]+/).map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+            const numbers = content.split(/[,\s]+/).map(num => parseInt(num.trim())).filter(num => !isNaN(num));
             if (numbers.length > 60) {
                 alert('Maximum array size is 60. Only the first 60 numbers will be used.');
                 numbers.length = 60;
