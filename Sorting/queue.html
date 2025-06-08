@@ -212,8 +212,8 @@
             border-color: #38b2ac;
         }
         
-        .box.head { border-color: #48bb78; border-width: 3px; }
-        .box.tail { border-color: #ed8936; border-width: 3px; }
+        .box.front { border-color: #48bb78; border-width: 3px; }
+        .box.rear { border-color: #ed8936; border-width: 3px; }
         
         .pointers {
             display: flex;
@@ -230,8 +230,8 @@
             min-width: 100px;
         }
         
-        .pointer.head { border-color: #48bb78; background: #f0fff4; }
-        .pointer.tail { border-color: #ed8936; background: #fffaf0; }
+        .pointer.front { border-color: #48bb78; background: #f0fff4; }
+        .pointer.rear { border-color: #ed8936; background: #fffaf0; }
         
         .pointer-label {
             font-size: 12px;
@@ -240,8 +240,8 @@
             margin-bottom: 5px;
         }
         
-        .pointer.head .pointer-label { color: #48bb78; }
-        .pointer.tail .pointer-label { color: #ed8936; }
+        .pointer.front .pointer-label { color: #48bb78; }
+        .pointer.rear .pointer-label { color: #ed8936; }
         
         .pointer-value {
             font-size: 20px;
@@ -375,8 +375,8 @@
                 <div>
                     <div class="input-group">
                         <input type="text" class="queue-input" id="input" placeholder="Enter numbers (comma or space separated)">
-                        <button class="btn btn-primary" id="enqueue">➕ Enqueue</button>
-                        <button class="btn btn-danger" id="dequeue">➖ Dequeue</button>
+                        <button class="btn btn-primary" id="enqueue">➕ Enqueue (Rear)</button>
+                        <button class="btn btn-danger" id="dequeue">➖ Dequeue (Front)</button>
                         <button class="btn btn-warning" id="clear">🗑️ Clear</button>
                     </div>
                 </div>
@@ -405,13 +405,13 @@
                 </div>
                 
                 <div class="pointers">
-                    <div class="pointer head">
-                        <div class="pointer-label">Head</div>
-                        <div class="pointer-value" id="head-val">0</div>
+                    <div class="pointer front">
+                        <div class="pointer-label">Front (Dequeue)</div>
+                        <div class="pointer-value" id="front-val">0</div>
                     </div>
-                    <div class="pointer tail">
-                        <div class="pointer-label">Tail</div>
-                        <div class="pointer-value" id="tail-val">0</div>
+                    <div class="pointer rear">
+                        <div class="pointer-label">Rear (Enqueue)</div>
+                        <div class="pointer-value" id="rear-val">0</div>
                     </div>
                 </div>
             </div>
@@ -421,10 +421,10 @@
             <div class="info-card">
                 <div class="card-title">📚 What is a Queue?</div>
                 <div class="card-content">
-                    A Queue follows FIFO (First In, First Out) principle. Elements are added at the tail and removed from the head.
+                    A Queue follows FIFO (First In, First Out) principle. Elements are added at the rear and removed from the front.
                     <br><br><strong>Operations:</strong>
-                    <br>• Enqueue: Add element at tail
-                    <br>• Dequeue: Remove element from head
+                    <br>• Enqueue: Add element at rear
+                    <br>• Dequeue: Remove element from front
                 </div>
             </div>
             
@@ -442,8 +442,8 @@
                 <div class="card-title">🎯 How to Use</div>
                 <div class="card-content">
                     1. Enter numbers separated by commas or spaces
-                    <br>2. Click Enqueue to add elements
-                    <br>3. Click Dequeue to remove elements
+                    <br>2. Click Enqueue to add elements at rear
+                    <br>3. Click Dequeue to remove elements from front
                     <br>4. Use random buttons for quick testing
                     <br>5. Adjust speed slider for animation speed
                 </div>
@@ -459,9 +459,9 @@
             <h3>Array Implementation</h3>
             <p><strong>Time Complexity:</strong></p>
             <ul>
-                <li><strong>Enqueue:</strong> O(1) - Constant time (adding at tail)</li>
-                <li><strong>Dequeue:</strong> O(1) - Constant time (removing from head)</li>
-                <li><strong>Peek:</strong> O(1) - Constant time (accessing head element)</li>
+                <li><strong>Enqueue:</strong> O(1) - Constant time (adding at rear)</li>
+                <li><strong>Dequeue:</strong> O(1) - Constant time (removing from front)</li>
+                <li><strong>Peek:</strong> O(1) - Constant time (accessing front element)</li>
             </ul>
             
             <p><strong>Space Complexity:</strong> O(n) - Linear space (where n is the capacity)</p>
@@ -469,7 +469,7 @@
             <h3>Key Points</h3>
             <ul>
                 <li>Array-based queues use circular buffering to maintain O(1) operations</li>
-                <li>The head and tail pointers wrap around using modulo arithmetic</li>
+                <li>The front and rear pointers wrap around using modulo arithmetic</li>
                 <li>Fixed capacity means no dynamic resizing (unlike linked list implementation)</li>
             </ul>
             
@@ -481,38 +481,38 @@
         class Queue {
             constructor(size = 12) {
                 this.arr = new Array(size).fill(null);
-                this.head = 0;
-                this.tail = 0;
+                this.front = 0;  // Where elements are dequeued (removed)
+                this.rear = 0;    // Where elements are enqueued (added)
                 this.size = 0;
                 this.capacity = size;
             }
             
             enqueue(val) {
                 if (this.size >= this.capacity) throw new Error("Queue is full!");
-                this.arr[this.tail] = val;
-                this.tail = (this.tail + 1) % this.capacity;
+                this.arr[this.rear] = val;
+                this.rear = (this.rear + 1) % this.capacity;
                 this.size++;
             }
             
             dequeue() {
                 if (this.size === 0) throw new Error("Queue is empty!");
-                const val = this.arr[this.head];
-                this.arr[this.head] = null;
-                this.head = (this.head + 1) % this.capacity;
+                const val = this.arr[this.front];
+                this.arr[this.front] = null;
+                this.front = (this.front + 1) % this.capacity;
                 this.size--;
                 
                 // Reset to start when empty
                 if (this.size === 0) {
-                    this.head = 0;
-                    this.tail = 0;
+                    this.front = 0;
+                    this.rear = 0;
                 }
                 return val;
             }
             
             clear() {
                 this.arr.fill(null);
-                this.head = 0;
-                this.tail = 0;
+                this.front = 0;
+                this.rear = 0;
                 this.size = 0;
             }
         }
@@ -529,8 +529,8 @@
             status: document.getElementById('status'),
             indices: document.getElementById('indices'),
             boxes: document.getElementById('boxes'),
-            headVal: document.getElementById('head-val'),
-            tailVal: document.getElementById('tail-val'),
+            frontVal: document.getElementById('front-val'),
+            rearVal: document.getElementById('rear-val'),
             speedSlider: document.getElementById('speed'),
             random3: document.getElementById('random-3'),
             random6: document.getElementById('random-6'),
@@ -559,8 +559,8 @@
         }
         
         function update() {
-            elements.headVal.textContent = queue.head;
-            elements.tailVal.textContent = queue.tail;
+            elements.frontVal.textContent = queue.front;
+            elements.rearVal.textContent = queue.rear;
             
             for (let i = 0; i < 12; i++) {
                 const box = document.getElementById(`box-${i}`);
@@ -572,8 +572,8 @@
                     box.textContent = queue.arr[i];
                 }
                 
-                if (queue.size > 0 && i === queue.head) box.classList.add('head');
-                if (i === queue.tail) box.classList.add('tail');
+                if (queue.size > 0 && i === queue.front) box.classList.add('front');
+                if (i === queue.rear) box.classList.add('rear');
             }
             
             if (queue.size === 0) {
@@ -606,7 +606,7 @@
                         break;
                     }
                     
-                    const pos = queue.tail;
+                    const pos = queue.rear;
                     queue.enqueue(val);
                     
                     const box = document.getElementById(`box-${pos}`);
@@ -629,7 +629,7 @@
             }
             
             animating = true;
-            const pos = queue.head;
+            const pos = queue.front;
             const box = document.getElementById(`box-${pos}`);
             
             box.classList.add('animate-dequeue');
