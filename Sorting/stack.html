@@ -1142,38 +1142,37 @@
                 return row;
             }
 
-            renderStack() {
-                this.arrayContainer.innerHTML = '';
-                
-                // Render from top to bottom (reverse order for visual representation)
-                for (let i = this.stack.length - 1; i >= 0; i--) {
-                    const element = this.createStackElement(i, this.stack[i]);
-                    this.arrayContainer.appendChild(element);
-                }
-                
-                // Add empty slots to show remaining capacity
-                const emptySlots = Math.min(5, this.capacity - this.stack.length);
-                for (let i = 0; i < emptySlots; i++) {
-                    const row = document.createElement('div');
-                    row.className = 'array-row';
-                    
-                    const indexBox = document.createElement('div');
-                    indexBox.className = 'array-index';
-                    indexBox.textContent = this.stack.length + i;
-                    indexBox.style.opacity = '0.3';
-                    
-                    const valueBox = document.createElement('div');
-                    valueBox.className = 'array-box';
-                    valueBox.style.opacity = '0.3';
-                    
-                    row.appendChild(valueBox);
-                    row.appendChild(indexBox);
-                    this.arrayContainer.insertBefore(row, this.arrayContainer.firstChild);
-                }
-                
-                this.updateStackInfo();
-                this.updateTopElement();
-            }
+renderStack() {
+    // Clear the container
+    this.arrayContainer.innerHTML = '';
+    
+    // Render stack elements from top to bottom (newest at top)
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+        const row = document.createElement('div');
+        row.className = 'array-row';
+        
+        // Create the value box
+        const valueBox = document.createElement('div');
+        valueBox.className = 'array-box filled';
+        valueBox.textContent = this.stack[i];
+        
+        // Create index label
+        const indexBox = document.createElement('div');
+        indexBox.className = 'array-index';
+        indexBox.textContent = i;
+        
+        // Add boxes to the row
+        row.appendChild(valueBox);
+        row.appendChild(indexBox);
+        
+        // Add row to container
+        this.arrayContainer.appendChild(row);
+    }
+    
+    // Update the stack info and highlight top element
+    this.updateStackInfo();
+    this.updateTopElement();
+}
 
             updateStackInfo() {
                 this.sizeValue.textContent = this.stack.length;
