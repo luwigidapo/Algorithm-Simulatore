@@ -18,6 +18,7 @@ let shouldReset = false;
 let sortingActive = false;
 let resolvePause = null;
 let sortOrder = 'ascending';
+let comparisonHistory = [];
 
 var arrayVal = 15;
 arraySize.addEventListener('input', function () {
@@ -27,7 +28,7 @@ arraySize.addEventListener('input', function () {
     createNewArray(arrayVal);
 });
 
-let delay = 512; // Default delay (1x speed)
+let delay = 128; // Default delay (1x speed)
 
 const speedOptions = document.querySelectorAll('.speed-option');
 speedOptions.forEach(option => {
@@ -45,10 +46,12 @@ createNewArray(arrayVal);
 function resetCounters() {
     comparisonCount = 0;
     swapCount = 0;
+    comparisonHistory = [];
     document.getElementById('comparison-count').textContent = '0';
     document.getElementById('swap-count').textContent = '0';
     document.getElementById('time-count').textContent = '0s';
     document.getElementById('comparison-display').textContent = '';
+    updateComparisonHistory();
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -86,6 +89,76 @@ function updateComparisonDisplay(val1, val2, comparison) {
     document.getElementById('comparison-display').textContent = `${val1} ${comparison} ${val2}`;
 }
 
+function addToComparisonHistory(val1, val2, comparison, result) {
+    const historyEntry = {
+        comparison: `${val1} ${comparison} ${val2}`,
+        result: result,
+        count: comparisonCount,
+        timestamp: new Date().toLocaleTimeString(),
+        algorithm: currentAlgorithm
+    };
+    comparisonHistory.push(historyEntry);
+    updateComparisonHistory();
+}
+
+function updateComparisonHistory() {
+    const historyContainer = document.getElementById('comparison-history');
+    if (!historyContainer) return;
+    
+    if (comparisonHistory.length === 0) {
+        historyContainer.innerHTML = '<div style="color: #64748b; font-style: italic; text-align: center; padding: 1rem;">No comparisons yet. Start sorting to see comparison history.</div>';
+        return;
+    }
+    
+    // Show last 10 comparisons to avoid overwhelming the display
+    const recentComparisons = comparisonHistory.slice(-10);
+    const historyHTML = recentComparisons.map((entry, index) => {
+        const isLatest = index === recentComparisons.length - 1;
+        return `
+            <div class="comparison-entry ${isLatest ? 'latest' : ''}" style="
+                padding: 0.5rem;
+                margin: 0.25rem 0;
+                background: ${isLatest ? '#e3f2fd' : '#f8fafc'};
+                border-radius: 0.375rem;
+                border-left: 3px solid ${entry.result ? '#22c55e' : '#ef4444'};
+                font-family: 'Courier New', monospace;
+                font-size: 0.85rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                ${isLatest ? 'animation: fadeIn 0.3s ease;' : ''}
+            ">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #1e293b; font-weight: 500;">${entry.comparison}</span>
+                    <div style="display: flex; gap: 0.5rem; font-size: 0.7rem; color: #64748b;">
+                        <span>#${entry.count}</span>
+                        <span>•</span>
+                        <span>${entry.timestamp}</span>
+                        <span>•</span>
+                        <span style="font-weight: 600; color: #4f46e5;">${entry.algorithm}</span>
+                    </div>
+                </div>
+                <span style="
+                    background: ${entry.result ? '#dcfce7' : '#fee2e2'};
+                    color: ${entry.result ? '#166534' : '#dc2626'};
+                    padding: 0.2rem 0.4rem;
+                    border-radius: 0.25rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                ">${entry.result ? 'TRUE' : 'FALSE'}</span>
+            </div>
+        `;
+    }).join('');
+    
+    const totalText = comparisonHistory.length > 10 ? 
+        `<div style="text-align: center; margin: 0.5rem 0; font-size: 0.8rem; color: #64748b;">Showing last 10 of ${comparisonHistory.length} comparisons</div>` : '';
+    
+    historyContainer.innerHTML = totalText + historyHTML;
+    
+    // Auto-scroll to bottom
+    historyContainer.scrollTop = historyContainer.scrollHeight;
+}
+
 function createNewArray(arrayVal, customArray = null) {
     resetCounters();
     deleteChild();
@@ -121,7 +194,7 @@ function createNewArray(arrayVal, customArray = null) {
         const barContainer = document.createElement("div");
         barContainer.className = 'bar-container';
         barContainer.style.width = `${(96 / array.length)}vw`;
-        barContainer.style.position = 'relative'; // Important for indicators
+        barContainer.style.position = 'relative';
 
         const numberLabel = document.createElement("div");
         numberLabel.className = 'bar-number';
@@ -131,7 +204,7 @@ function createNewArray(arrayVal, customArray = null) {
         const bar = document.createElement("div");
         bar.style.height = `${array[i].height}px`;
         bar.className = 'bar';
-        bar.style.background = 'cyan'; // Default color
+        bar.style.background = 'cyan';
 
         barContainer.appendChild(numberLabel);
         barContainer.appendChild(bar);
@@ -208,20 +281,17 @@ function createComparisonIndicator(index1, index2) {
 
 function removeComparisonIndicators() {
     document.querySelectorAll('.comparison-arrow').forEach(arrow => arrow.parentNode?.remove());
-    // Also remove any comparison indicators from insertion sort
     document.querySelectorAll('.comparison-indicator').forEach(indicator => {
         indicator.parentNode?.removeChild(indicator);
     });
 }
 
-// Reset bar colors helper
 function resetBarColors() {
     document.querySelectorAll('.bar').forEach(bar => {
         bar.style.background = 'cyan';
     });
 }
 
-// Add comparison indicator for heap sort
 function addHeapComparisonIndicator(index, text, color) {
     removeHeapComparisonIndicator(index);
     
@@ -308,6 +378,43 @@ function swapping(index1, index2) {
     incrementSwap();
 }
 
+function compareValues(val1, val2, operator) {
+    let result;
+    let comparison;
+    
+    switch (operator) {
+        case '>':
+            result = val1 > val2;
+            comparison = '>';
+            break;
+        case '<':
+            result = val1 < val2;
+            comparison = '<';
+            break;
+        case '>=':
+            result = val1 >= val2;
+            comparison = '≥';
+            break;
+        case '<=':
+            result = val1 <= val2;
+            comparison = '≤';
+            break;
+        case '==':
+            result = val1 === val2;
+            comparison = '=';
+            break;
+        default:
+            result = val1 > val2;
+            comparison = '>';
+    }
+    
+    incrementComparison();
+    updateComparisonDisplay(val1, val2, comparison);
+    addToComparisonHistory(val1, val2, comparison, result);
+    
+    return result;
+}
+
 function togglePause() {
     isPaused = !isPaused;
     const pauseBtn = document.getElementById('pause-btn');
@@ -346,7 +453,6 @@ function resetSorting() {
 
 document.getElementById('custom-array-btn').addEventListener('click', function() {
     const input = document.getElementById('custom-array-input').value;
-    // Split by commas OR whitespace, then trim and parse
     const numbers = input.split(/[,\s]+/).map(num => parseInt(num.trim())).filter(num => !isNaN(num));
 
     if (numbers.length > 60) {
@@ -617,7 +723,7 @@ function updateCodeExample() {
     const language = languages[currentLanguageIndex];
     const codeText = codeExamples[currentAlgorithm][language];
     document.getElementById('code_java').textContent = codeText;
-    document.getElementById('code-language').textContent = `Code in (${language})`;
+    document.getElementById('code-language').textContent = `💻 Code (${language})`;
 }
 
 // Update the algorithm when sorting buttons are clicked
@@ -627,6 +733,674 @@ sortingButtons.forEach(button => {
         currentAlgorithm = this.className;
         updateCodeExample();
     });
+});
+
+// BUBBLE SORT IMPLEMENTATION
+async function BubbleSort() {
+    shouldReset = false;
+    const barContainers = document.querySelectorAll('.bar-container');
+    const n = barContainers.length;
+    
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - i - 1; j++) {
+            if (shouldReset) {
+                resetBarColors();
+                return;
+            }
+            
+            // Highlight the bars being compared
+            barContainers[j].querySelector('.bar').style.background = 'red';
+            barContainers[j + 1].querySelector('.bar').style.background = 'red';
+            
+            createComparisonIndicator(j, j + 1);
+            
+            const val1 = parseInt(barContainers[j].querySelector('.bar-number').textContent);
+            const val2 = parseInt(barContainers[j + 1].querySelector('.bar-number').textContent);
+            
+            if (sortOrder === 'ascending') {
+                if (compareValues(val1, val2, '>')) {
+                    await swapping(j, j + 1);
+                }
+            } else {
+                if (compareValues(val1, val2, '<')) {
+                    await swapping(j, j + 1);
+                }
+            }
+            
+            await waitforme(delay);
+            
+            // Reset colors except for sorted elements
+            if (j < n - i - 1) {
+                barContainers[j].querySelector('.bar').style.background = 'cyan';
+                barContainers[j + 1].querySelector('.bar').style.background = 'cyan';
+            }
+            
+            removeComparisonIndicators();
+        }
+        
+        // Mark the sorted element
+        barContainers[n - 1 - i].querySelector('.bar').style.background = 'green';
+    }
+    
+    if (!shouldReset) {
+        // Final coloring
+        barContainers[0].querySelector('.bar').style.background = 'green';
+    }
+}
+
+// BubbleSort button functionality
+const BubbleSortButton = document.querySelector(".BubbleSort");
+BubbleSortButton.addEventListener('click', async function () {
+    mouseclick.play();
+    selectText.innerHTML = `Bubble Sort (${sortOrder})..`;
+
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Bubble Sort</strong> is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Compare each pair of adjacent elements from the beginning of the array</li>
+            <li>If they are in the wrong order, swap them</li>
+            <li>Repeat until the array is sorted</li>
+        </ol>
+        <p>This algorithm has O(n²) time complexity in the worst and average cases.</p>
+    `;
+
+    document.getElementById('time').innerHTML = `Time Complexity:
+- Worst Case: O(n²) - When array is reverse sorted
+- Average Case: O(n²) - Randomly shuffled array
+- Best Case: O(n) - When array is already sorted
+
+Space Complexity: O(1) - In-place sorting`;
+
+    disableSortingBtn();
+    disableSizeSlider();
+    disableNewArrayBtn();
+    resetCounters();
+    startTimer();
+
+    try {
+        await BubbleSort();
+        if (!shouldReset) {
+            done.play();
+            selectText.innerHTML = `Sorting Complete!`;
+            stopTimer();
+        }
+    } catch (e) {
+        console.log("Sorting was interrupted");
+    }
+
+    enableSortingBtn();
+    enableSizeSlider();
+    enableNewArrayBtn();
+});
+
+// INSERTION SORT IMPLEMENTATION
+async function InsertionSort() {
+    shouldReset = false;
+    const barContainers = document.querySelectorAll('.bar-container');
+    const n = barContainers.length;
+    
+    for (let i = 1; i < n; i++) {
+        if (shouldReset) {
+            resetBarColors();
+            return;
+        }
+        
+        const key = parseInt(barContainers[i].querySelector('.bar-number').textContent);
+        let j = i - 1;
+        
+        // Highlight the current key
+        barContainers[i].querySelector('.bar').style.background = 'yellow';
+        
+        while (j >= 0) {
+            if (shouldReset) {
+                resetBarColors();
+                return;
+            }
+            
+            const currentVal = parseInt(barContainers[j].querySelector('.bar-number').textContent);
+            
+            // Highlight the comparison
+            barContainers[j].querySelector('.bar').style.background = 'red';
+            createComparisonIndicator(j, i);
+            
+            if (sortOrder === 'ascending') {
+                if (!compareValues(currentVal, key, '>')) break;
+            } else {
+                if (!compareValues(currentVal, key, '<')) break;
+            }
+            
+            await waitforme(delay / 2);
+            
+            // Move the element
+            barContainers[j + 1].querySelector('.bar').style.height = barContainers[j].querySelector('.bar').style.height;
+            barContainers[j + 1].querySelector('.bar-number').textContent = barContainers[j].querySelector('.bar-number').textContent;
+            
+            // Reset color after moving
+            barContainers[j].querySelector('.bar').style.background = 'cyan';
+            
+            j--;
+            await waitforme(delay / 2);
+        }
+        
+        // Place the key in its correct position
+        barContainers[j + 1].querySelector('.bar').style.height = `${array[i].height}px`;
+        barContainers[j + 1].querySelector('.bar-number').textContent = key.toString();
+        
+        // Reset colors
+        barContainers[j + 1].querySelector('.bar').style.background = 'orange';
+        removeComparisonIndicators();
+        
+        await waitforme(delay);
+    }
+    
+    if (!shouldReset) {
+        // Final coloring
+        barContainers.forEach(container => {
+            container.querySelector('.bar').style.background = 'green';
+        });
+    }
+}
+
+// InsertionSort button functionality
+const InsertionSortButton = document.querySelector(".InsertionSort");
+InsertionSortButton.addEventListener('click', async function () {
+    mouseclick.play();
+    selectText.innerHTML = `Insertion Sort (${sortOrder})..`;
+
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Insertion Sort</strong> is a simple sorting algorithm that builds the final sorted array one item at a time.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Start with the second element (index 1) as the key</li>
+            <li>Compare the key with elements before it, moving larger elements one position up</li>
+            <li>Insert the key into its correct position in the sorted part</li>
+            <li>Repeat for all elements</li>
+        </ol>
+        <p>This algorithm has O(n²) time complexity in the worst and average cases, but O(n) in the best case.</p>
+    `;
+
+    document.getElementById('time').innerHTML = `Time Complexity:
+- Worst Case: O(n²) - When array is reverse sorted
+- Average Case: O(n²) - Randomly shuffled array
+- Best Case: O(n) - When array is already sorted
+
+Space Complexity: O(1) - In-place sorting`;
+
+    disableSortingBtn();
+    disableSizeSlider();
+    disableNewArrayBtn();
+    resetCounters();
+    startTimer();
+
+    try {
+        await InsertionSort();
+        if (!shouldReset) {
+            done.play();
+            selectText.innerHTML = `Sorting Complete!`;
+            stopTimer();
+        }
+    } catch (e) {
+        console.log("Sorting was interrupted");
+    }
+
+    enableSortingBtn();
+    enableSizeSlider();
+    enableNewArrayBtn();
+});
+
+// SELECTION SORT IMPLEMENTATION
+async function SelectionSort() {
+    shouldReset = false;
+    const barContainers = document.querySelectorAll('.bar-container');
+    const n = barContainers.length;
+    
+    for (let i = 0; i < n - 1; i++) {
+        if (shouldReset) {
+            resetBarColors();
+            return;
+        }
+        
+        let minIndex = i;
+        barContainers[minIndex].querySelector('.bar').style.background = 'yellow';
+        
+        for (let j = i + 1; j < n; j++) {
+            if (shouldReset) {
+                resetBarColors();
+                return;
+            }
+            
+            // Highlight the comparison
+            barContainers[j].querySelector('.bar').style.background = 'red';
+            createComparisonIndicator(minIndex, j);
+            
+            const minVal = parseInt(barContainers[minIndex].querySelector('.bar-number').textContent);
+            const currentVal = parseInt(barContainers[j].querySelector('.bar-number').textContent);
+            
+            if (sortOrder === 'ascending') {
+                if (compareValues(currentVal, minVal, '<')) {
+                    // Reset previous min color
+                    barContainers[minIndex].querySelector('.bar').style.background = 'cyan';
+                    minIndex = j;
+                    barContainers[minIndex].querySelector('.bar').style.background = 'yellow';
+                }
+            } else {
+                if (compareValues(currentVal, minVal, '>')) {
+                    // Reset previous min color
+                    barContainers[minIndex].querySelector('.bar').style.background = 'cyan';
+                    minIndex = j;
+                    barContainers[minIndex].querySelector('.bar').style.background = 'yellow';
+                }
+            }
+            
+            await waitforme(delay);
+            
+            // Reset color if not the new min
+            if (j !== minIndex) {
+                barContainers[j].querySelector('.bar').style.background = 'cyan';
+            }
+            
+            removeComparisonIndicators();
+        }
+        
+        if (minIndex !== i) {
+            await swapping(i, minIndex);
+        }
+        
+        // Mark the sorted element
+        barContainers[i].querySelector('.bar').style.background = 'green';
+    }
+    
+    if (!shouldReset) {
+        // Final coloring
+        barContainers[n - 1].querySelector('.bar').style.background = 'green';
+    }
+}
+
+// SelectionSort button functionality
+const SelectionSortButton = document.querySelector(".SelectionSort");
+SelectionSortButton.addEventListener('click', async function () {
+    mouseclick.play();
+    selectText.innerHTML = `Selection Sort (${sortOrder})..`;
+
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Selection Sort</strong> is an in-place comparison sorting algorithm that divides the input list into two parts: the sublist of items already sorted and the sublist of items remaining to be sorted.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Find the minimum (or maximum) element in the unsorted part</li>
+            <li>Swap it with the first element of the unsorted part</li>
+            <li>Move the boundary between sorted and unsorted parts one element forward</li>
+            <li>Repeat until the array is sorted</li>
+        </ol>
+        <p>This algorithm has O(n²) time complexity in all cases.</p>
+    `;
+
+    document.getElementById('time').innerHTML = `Time Complexity:
+- Worst Case: O(n²) - All cases
+- Average Case: O(n²) - All cases
+- Best Case: O(n²) - All cases
+
+Space Complexity: O(1) - In-place sorting`;
+
+    disableSortingBtn();
+    disableSizeSlider();
+    disableNewArrayBtn();
+    resetCounters();
+    startTimer();
+
+    try {
+        await SelectionSort();
+        if (!shouldReset) {
+            done.play();
+            selectText.innerHTML = `Sorting Complete!`;
+            stopTimer();
+        }
+    } catch (e) {
+        console.log("Sorting was interrupted");
+    }
+
+    enableSortingBtn();
+    enableSizeSlider();
+    enableNewArrayBtn();
+});
+
+// MERGE SORT IMPLEMENTATION
+async function MergeSort() {
+    shouldReset = false;
+    const barContainers = document.querySelectorAll('.bar-container');
+    const n = barContainers.length;
+    const numbers = Array.from(barContainers).map(container => 
+        parseInt(container.querySelector('.bar-number').textContent)
+    );
+    const heights = Array.from(barContainers).map(container => 
+        container.querySelector('.bar').style.height
+    );
+
+    async function mergeSort(start, end) {
+        if (start >= end || shouldReset) return;
+
+        const mid = Math.floor((start + end) / 2);
+        
+        await mergeSort(start, mid);
+        if (shouldReset) return;
+        await mergeSort(mid + 1, end);
+        if (shouldReset) return;
+        
+        await merge(start, mid, end);
+    }
+
+    async function merge(start, mid, end) {
+        const leftSize = mid - start + 1;
+        const rightSize = end - mid;
+        
+        const leftArray = new Array(leftSize);
+        const rightArray = new Array(rightSize);
+        const leftHeights = new Array(leftSize);
+        const rightHeights = new Array(rightSize);
+        
+        // Copy data to temp arrays
+        for (let i = 0; i < leftSize; i++) {
+            leftArray[i] = numbers[start + i];
+            leftHeights[i] = heights[start + i];
+        }
+        for (let j = 0; j < rightSize; j++) {
+            rightArray[j] = numbers[mid + 1 + j];
+            rightHeights[j] = heights[mid + 1 + j];
+        }
+        
+        let i = 0, j = 0, k = start;
+        
+        while (i < leftSize && j < rightSize) {
+            if (shouldReset) return;
+            
+            // Highlight the bars being compared
+            barContainers[start + i].querySelector('.bar').style.background = 'red';
+            barContainers[mid + 1 + j].querySelector('.bar').style.background = 'red';
+            createComparisonIndicator(start + i, mid + 1 + j);
+            
+            let comparisonResult;
+            if (sortOrder === 'ascending') {
+                comparisonResult = compareValues(leftArray[i], rightArray[j], '<=');
+            } else {
+                comparisonResult = compareValues(leftArray[i], rightArray[j], '>=');
+            }
+            
+            if (comparisonResult) {
+                numbers[k] = leftArray[i];
+                heights[k] = leftHeights[i];
+                i++;
+            } else {
+                numbers[k] = rightArray[j];
+                heights[k] = rightHeights[j];
+                j++;
+            }
+            
+            // Update the visualization
+            barContainers[k].querySelector('.bar').style.height = heights[k];
+            barContainers[k].querySelector('.bar-number').textContent = numbers[k].toString();
+            barContainers[k].querySelector('.bar').style.background = 'orange';
+            
+            await waitforme(delay);
+            
+            // Reset colors
+            if (i < leftSize) barContainers[start + i].querySelector('.bar').style.background = 'cyan';
+            if (j < rightSize) barContainers[mid + 1 + j].querySelector('.bar').style.background = 'cyan';
+            removeComparisonIndicators();
+            
+            k++;
+        }
+        
+        // Copy remaining elements of leftArray
+        while (i < leftSize) {
+            if (shouldReset) return;
+            
+            numbers[k] = leftArray[i];
+            heights[k] = leftHeights[i];
+            
+            barContainers[k].querySelector('.bar').style.height = heights[k];
+            barContainers[k].querySelector('.bar-number').textContent = numbers[k].toString();
+            barContainers[k].querySelector('.bar').style.background = 'orange';
+            
+            await waitforme(delay);
+            
+            i++;
+            k++;
+        }
+        
+        // Copy remaining elements of rightArray
+        while (j < rightSize) {
+            if (shouldReset) return;
+            
+            numbers[k] = rightArray[j];
+            heights[k] = rightHeights[j];
+            
+            barContainers[k].querySelector('.bar').style.height = heights[k];
+            barContainers[k].querySelector('.bar-number').textContent = numbers[k].toString();
+            barContainers[k].querySelector('.bar').style.background = 'orange';
+            
+            await waitforme(delay);
+            
+            j++;
+            k++;
+        }
+        
+        // Reset colors for the merged section
+        for (let x = start; x <= end; x++) {
+            barContainers[x].querySelector('.bar').style.background = 'cyan';
+        }
+    }
+
+    await mergeSort(0, n - 1);
+    
+    if (!shouldReset) {
+        // Final coloring
+        barContainers.forEach(container => {
+            container.querySelector('.bar').style.background = 'green';
+        });
+    }
+}
+
+// MergeSort button functionality
+const MergeSortButton = document.querySelector(".MergeSort");
+MergeSortButton.addEventListener('click', async function () {
+    mouseclick.play();
+    selectText.innerHTML = `Merge Sort (${sortOrder})..`;
+
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Merge Sort</strong> is a divide-and-conquer algorithm that divides the input array into two halves, sorts them recursively, and then merges the two sorted halves.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Divide the unsorted list into n sublists, each containing one element</li>
+            <li>Repeatedly merge sublists to produce new sorted sublists</li>
+            <li>Continue until there is only one sublist remaining, which is the sorted list</li>
+        </ol>
+        <p>This algorithm has O(n log n) time complexity in all cases.</p>
+    `;
+
+    document.getElementById('time').innerHTML = `Time Complexity:
+- Worst Case: O(n log n) - All cases
+- Average Case: O(n log n) - All cases
+- Best Case: O(n log n) - All cases
+
+Space Complexity: O(n) - Requires temporary arrays`;
+
+    disableSortingBtn();
+    disableSizeSlider();
+    disableNewArrayBtn();
+    resetCounters();
+    startTimer();
+
+    try {
+        await MergeSort();
+        if (!shouldReset) {
+            done.play();
+            selectText.innerHTML = `Sorting Complete!`;
+            stopTimer();
+        }
+    } catch (e) {
+        console.log("Sorting was interrupted");
+    }
+
+    enableSortingBtn();
+    enableSizeSlider();
+    enableNewArrayBtn();
+});
+
+// QUICK SORT IMPLEMENTATION
+async function QuickSort() {
+    shouldReset = false;
+    const barContainers = document.querySelectorAll('.bar-container');
+    const n = barContainers.length;
+    const numbers = Array.from(barContainers).map(container => 
+        parseInt(container.querySelector('.bar-number').textContent)
+    );
+    const heights = Array.from(barContainers).map(container => 
+        container.querySelector('.bar').style.height
+    );
+
+    async function quickSort(start, end) {
+        if (start >= end || shouldReset) return;
+        
+        const pivotIndex = await partition(start, end);
+        if (shouldReset) return;
+        
+        await quickSort(start, pivotIndex - 1);
+        if (shouldReset) return;
+        await quickSort(pivotIndex + 1, end);
+    }
+
+    async function partition(start, end) {
+        const pivotValue = numbers[end];
+        barContainers[end].querySelector('.bar').style.background = 'purple';
+        addHeapComparisonIndicator(end, 'Pivot', 'purple');
+        
+        let pivotIndex = start;
+        
+        for (let i = start; i < end; i++) {
+            if (shouldReset) {
+                resetBarColors();
+                removeAllHeapIndicators();
+                return -1;
+            }
+            
+            // Highlight the comparison
+            barContainers[i].querySelector('.bar').style.background = 'red';
+            barContainers[pivotIndex].querySelector('.bar').style.background = 'yellow';
+            createComparisonIndicator(i, end);
+            
+            let comparisonResult;
+            if (sortOrder === 'ascending') {
+                comparisonResult = compareValues(numbers[i], pivotValue, '<');
+            } else {
+                comparisonResult = compareValues(numbers[i], pivotValue, '>');
+            }
+            
+            if (comparisonResult) {
+                // Swap elements
+                [numbers[i], numbers[pivotIndex]] = [numbers[pivotIndex], numbers[i]];
+                [heights[i], heights[pivotIndex]] = [heights[pivotIndex], heights[i]];
+                
+                // Update visualization
+                barContainers[i].querySelector('.bar').style.height = heights[i];
+                barContainers[i].querySelector('.bar-number').textContent = numbers[i].toString();
+                barContainers[pivotIndex].querySelector('.bar').style.height = heights[pivotIndex];
+                barContainers[pivotIndex].querySelector('.bar-number').textContent = numbers[pivotIndex].toString();
+                
+                incrementSwap();
+                
+                pivotIndex++;
+            }
+            
+            await waitforme(delay);
+            
+            // Reset colors
+            barContainers[i].querySelector('.bar').style.background = 'cyan';
+            if (pivotIndex > start) {
+                barContainers[pivotIndex - 1].querySelector('.bar').style.background = 'cyan';
+            }
+            removeComparisonIndicators();
+        }
+        
+        // Swap pivot to its final place
+        [numbers[pivotIndex], numbers[end]] = [numbers[end], numbers[pivotIndex]];
+        [heights[pivotIndex], heights[end]] = [heights[end], heights[pivotIndex]];
+        
+        barContainers[pivotIndex].querySelector('.bar').style.height = heights[pivotIndex];
+        barContainers[pivotIndex].querySelector('.bar-number').textContent = numbers[pivotIndex].toString();
+        barContainers[end].querySelector('.bar').style.height = heights[end];
+        barContainers[end].querySelector('.bar-number').textContent = numbers[end].toString();
+        
+        incrementSwap();
+        
+        // Reset colors
+        barContainers[pivotIndex].querySelector('.bar').style.background = 'green';
+        barContainers[end].querySelector('.bar').style.background = 'cyan';
+        removeAllHeapIndicators();
+        
+        await waitforme(delay);
+        
+        return pivotIndex;
+    }
+
+    await quickSort(0, n - 1);
+    
+    if (!shouldReset) {
+        // Final coloring
+        barContainers.forEach(container => {
+            container.querySelector('.bar').style.background = 'green';
+        });
+    }
+}
+
+// QuickSort button functionality
+const QuickSortButton = document.querySelector(".QuickSort");
+QuickSortButton.addEventListener('click', async function () {
+    mouseclick.play();
+    selectText.innerHTML = `Quick Sort (${sortOrder})..`;
+
+    // Update info panels
+    document.getElementById('algorithm-definition').innerHTML = `
+        <p><strong>Quick Sort</strong> is a divide-and-conquer algorithm that selects a 'pivot' element and partitions the array around the pivot.</p>
+        <p><strong>How it works:</strong></p>
+        <ol>
+            <li>Select a pivot element (here we use the last element)</li>
+            <li>Partition the array so elements less than pivot come before, greater come after</li>
+            <li>Recursively apply to the sub-arrays</li>
+        </ol>
+        <p>This algorithm has O(n log n) time complexity on average, but O(n²) in the worst case.</p>
+    `;
+
+    document.getElementById('time').innerHTML = `Time Complexity:
+- Worst Case: O(n²) - When pivot is smallest or largest element
+- Average Case: O(n log n) - Randomly shuffled array
+- Best Case: O(n log n) - Balanced partitions
+
+Space Complexity: O(log n) - Recursion stack`;
+
+    disableSortingBtn();
+    disableSizeSlider();
+    disableNewArrayBtn();
+    resetCounters();
+    startTimer();
+
+    try {
+        await QuickSort();
+        if (!shouldReset) {
+            done.play();
+            selectText.innerHTML = `Sorting Complete!`;
+            stopTimer();
+        }
+    } catch (e) {
+        console.log("Sorting was interrupted");
+    }
+
+    enableSortingBtn();
+    enableSizeSlider();
+    enableNewArrayBtn();
 });
 
 // HEAP SORT IMPLEMENTATION
@@ -684,11 +1458,17 @@ async function HeapSort() {
             barContainers[l].querySelector('.bar').style.background = 'lightblue';
             addHeapComparisonIndicator(l, 'Left', 'lightblue');
             
-            incrementComparison();
-            if (sortOrder === 'ascending' && parseInt(barContainers[l].querySelector('.bar-number').textContent) > parseInt(barContainers[largest].querySelector('.bar-number').textContent)) {
-                largest = l;
-            } else if (sortOrder === 'descending' && parseInt(barContainers[l].querySelector('.bar-number').textContent) < parseInt(barContainers[largest].querySelector('.bar-number').textContent)) {
-                largest = l;
+            const leftVal = parseInt(barContainers[l].querySelector('.bar-number').textContent);
+            const largestVal = parseInt(barContainers[largest].querySelector('.bar-number').textContent);
+            
+            if (sortOrder === 'ascending') {
+                if (compareValues(leftVal, largestVal, '>')) {
+                    largest = l;
+                }
+            } else {
+                if (compareValues(leftVal, largestVal, '<')) {
+                    largest = l;
+                }
             }
             
             await waitforme(delay / 3);
@@ -698,11 +1478,17 @@ async function HeapSort() {
             barContainers[r].querySelector('.bar').style.background = 'lightgreen';
             addHeapComparisonIndicator(r, 'Right', 'lightgreen');
             
-            incrementComparison();
-            if (sortOrder === 'ascending' && parseInt(barContainers[r].querySelector('.bar-number').textContent) > parseInt(barContainers[largest].querySelector('.bar-number').textContent)) {
-                largest = r;
-            } else if (sortOrder === 'descending' && parseInt(barContainers[r].querySelector('.bar-number').textContent) < parseInt(barContainers[largest].querySelector('.bar-number').textContent)) {
-                largest = r;
+            const rightVal = parseInt(barContainers[r].querySelector('.bar-number').textContent);
+            const largestVal = parseInt(barContainers[largest].querySelector('.bar-number').textContent);
+            
+            if (sortOrder === 'ascending') {
+                if (compareValues(rightVal, largestVal, '>')) {
+                    largest = r;
+                }
+            } else {
+                if (compareValues(rightVal, largestVal, '<')) {
+                    largest = r;
+                }
             }
             
             await waitforme(delay / 3);
